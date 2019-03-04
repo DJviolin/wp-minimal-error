@@ -1,0 +1,58 @@
+version: '3.4'
+
+services:
+  db:
+    image: mariadb:latest
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - "db_data:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin:latest
+    volumes:
+      - "./config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:rw"
+      - "/sessions"
+    ports:
+      - 8080:80
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_PMADB=phpmyadmin
+      - PMA_USER=wordpress
+      - PMA_PASSWORD=wordpress
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8081:8080"
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    volumes:
+      - "wp_data:/var/www/html"
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_CONFIG_EXTRA: |
+        define('DISALLOW_FILE_EDIT', true);
+
+volumes:
+  db_data: {}
+  wp_data: {}
