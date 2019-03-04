@@ -4,6 +4,7 @@
 
 * Virtualbox 6.0.4
 * Vagrant 2.2.4
+* Windows 10
 
 ## Usage
 
